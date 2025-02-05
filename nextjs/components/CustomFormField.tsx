@@ -12,6 +12,10 @@ import { Input } from "@/components/ui/input"
 import { Control, Form } from "react-hook-form"
 import {FormFieldType} from "./forms/PatientForm"
 import { Label } from "@radix-ui/react-label"
+import Image from "next/image";
+import 'react-phone-number-input/style.css'
+import PhoneInput from 'react-phone-number-input'
+
 
 interface CustomProps {
   control: Control<any>,
@@ -45,9 +49,31 @@ const RenderField = ({field, props }:{field:any; props: CustomProps}) => {
           className="ml-2"
           />
         )}
+        <FormControl>
+          <Input 
+          placeholder={placeholder}
+          {...field}
+          className="shad-input border-0"
+          />
+        </FormControl>
         </div>
       )
       
+    case FormFieldType.PHONE_INPUT:
+
+    return (  
+      <FormControl>
+         <PhoneInput
+            defaultCountry="VN"
+            placeholder={placeholder}
+            international
+            withCountryCallingCode
+            value={field.value as E164Number | undefined}
+            onChange={field.onChange}
+            className="input-phone"
+          />
+      </FormControl>
+    )
       default:
         break;
   }

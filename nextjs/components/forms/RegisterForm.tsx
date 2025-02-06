@@ -23,7 +23,7 @@ export enum FormFieldType {
   SKELETON = "skeleton",
 }
  
-export const PatientForm = ()=> {
+export const RegisterForm = ({user}:{user:User})=> {
   // 1. Define your form.
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false)
@@ -75,26 +75,10 @@ export const PatientForm = ()=> {
         iconSrc="assets/icons/user.svg"
         iconAlt="User"
         />
-        <CustomFormField 
-        fieldType={FormFieldType.INPUT}
-        control={form.control}
-        name="email"
-        label="Email"
-        placeholder="trangiavi@gmail.com"
-        iconSrc="assets/icons/email.svg"
-        iconAlt="email"
-        />
-        <CustomFormField 
-        fieldType={FormFieldType.PHONE_INPUT}
-        control={form.control}
-        name="phone"
-        label="Phone number"
-        placeholder="1234567890"
-        />
       <SubmitButton isLoading={isLoading}>Get Started</SubmitButton>
     </form>
   </Form>
   )
 }
 
-export default PatientForm
+export default RegisterForm

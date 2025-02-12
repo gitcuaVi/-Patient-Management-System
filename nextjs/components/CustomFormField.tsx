@@ -16,7 +16,8 @@ import 'react-phone-number-input/style.css'
 import PhoneInput from 'react-phone-number-input'
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { Select, SelectContent, SelectPortal, SelectTrigger, SelectValue } from "@radix-ui/react-select";
+import { Select, SelectContent, SelectTrigger, SelectValue } from "./ui/select"
+import { Textarea } from "./ui/textarea"
 
 
 interface CustomProps {
@@ -76,6 +77,18 @@ const RenderField = ({field, props }:{field:any; props: CustomProps}) => {
           </FormControl>
         );
 
+        case FormFieldType.TEXTAREA:
+          return(
+            <FormControl>
+              <Textarea
+              placeholder={placeholder}
+              {...field}
+              className="shad-textArea"
+              disabled = {props.disabled}
+              />
+            </FormControl>
+          );
+
         case FormFieldType.DATE_PICKER:
           return (
             <div className="flex rounded-md border border-dark-500 bg-dark-400" >
@@ -109,12 +122,10 @@ const RenderField = ({field, props }:{field:any; props: CustomProps}) => {
             return (
               <FormControl>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                  <SelectTrigger className="shad-select-trigger h-12 text-lg px-4" aria-hidden={false}>
-                  <SelectValue placeholder={placeholder} />
+                  <FormControl className="w-full">
+                  <SelectTrigger className="shad-select-trigger">
+                  <SelectValue placeholder={placeholder}>{field.value}</SelectValue>
                 </SelectTrigger>
-
-
                   </FormControl>
                   <SelectContent className="shad-select-content">
                     {props.children}
@@ -122,6 +133,8 @@ const RenderField = ({field, props }:{field:any; props: CustomProps}) => {
                 </Select>
               </FormControl>
             );
+
+
       default:
         break;
   }

@@ -12,11 +12,13 @@ import { create } from "domain"
 import { useRouter } from "next/navigation"
 import { createUser } from "@/lib/actions/patient.action"
 import { FormFieldType } from "./PatientForm"
-import * as RadioGroup from "@radix-ui/react-radio-group";
-import { Doctors, GenderOptions } from "@/constants"
+
+import { Doctors, GenderOptions, IdentificationTypes } from "@/constants"
 import { Label } from "../ui/label"
-import Image from "next/image"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@radix-ui/react-select";
+import Image from "next/image";
+import { SelectItem } from "../ui/select"
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
+import FileUploader from "../FileUploader"
 
 
 
@@ -113,14 +115,14 @@ export const RegisterForm = ({user}:{user:User})=> {
               label="Gender"
               renderSkeleton={(field) => (
                 <FormControl>
-                  <RadioGroup.Root
+                  <RadioGroup
                     className="flex h-6 gap-6 xl:justify-between"
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     {GenderOptions.map((option, i) => (
                       <div key={option + i} className="radio-group">
-                        <RadioGroup.Item value={option} id={option}
+                        <RadioGroupItem value={option} id={option}
                          className="w-4 h-4 rounded-full border border-gray-400 data-[state=checked]:bg-blue-500"
                         />
                         <Label htmlFor={option} className="cursor-pointer">
@@ -128,7 +130,7 @@ export const RegisterForm = ({user}:{user:User})=> {
                         </Label>
                       </div>
                     ))}
-                  </RadioGroup.Root>
+                  </RadioGroup>
                 </FormControl>
               )}
             />
@@ -147,7 +149,8 @@ export const RegisterForm = ({user}:{user:User})=> {
         control={form.control}
         name="primaryPhysician"
         label="Primary physician"
-        placeholder="select a physician"
+        placeholder="Select your primary physician"
+        
         >
           {Doctors.map((doctor) => (
             <SelectItem key={doctor.name} value={doctor.name}>
@@ -157,7 +160,7 @@ export const RegisterForm = ({user}:{user:User})=> {
                 height={32}
                 width={32}
                 alt={doctor.name}
-                className="rounded-full border border-gray-500"
+                className="rounded-full border border-dark-500"
                 />
                 <p>{doctor.name}</p>
               </div>
@@ -167,8 +170,99 @@ export const RegisterForm = ({user}:{user:User})=> {
         </div>
 
         <div className="flex flex-col gap-6 xl:flex-row">
-        
+        <CustomFormField 
+        fieldType={FormFieldType.INPUT}
+        control={form.control}
+        name="insuranceProvider"
+        label="Insurance Provider"
+        placeholder="BlueCross BlueShield"
+        />
+        <CustomFormField 
+        fieldType={FormFieldType.INPUT}
+        control={form.control}
+        name="insurancePolicyNumber"
+        label="Isurance Policy Number"
+        placeholder="BHYT125547793"
+        />
         </div>
+
+        <div className="flex flex-col gap-6 xl:flex-row">
+        <CustomFormField 
+        fieldType={FormFieldType.TEXTAREA}
+        control={form.control}
+        name="allergies"
+        label="Allergies (if any)"
+        placeholder="Peanuts, penicillin, pollen"
+        />
+        <CustomFormField 
+        fieldType={FormFieldType.TEXTAREA}
+        control={form.control}
+        name="currentMedications"
+        label="Current Medications (if any)"
+        placeholder="Ibuprofen 200mg, Paracetamol 500mg"
+        />
+        </div>
+
+        <div className="flex flex-col gap-6 xl:flex-row">
+        <CustomFormField 
+        fieldType={FormFieldType.TEXTAREA}
+        control={form.control}
+        name="familyMedicalHistory"
+        label="Family Medical History"
+        placeholder="Mother had brain canser, Father had heart disease"
+        />
+        <CustomFormField 
+        fieldType={FormFieldType.TEXTAREA}
+        control={form.control}
+        name="passMedicalHistory"
+        label="Pass Medical History"
+        placeholder="Appendectomy, Tonsillectomy"
+        />
+        </div>
+
+        <section className="space-y-6">
+          <div className="mb-9 space-y-1">
+          <h2 className="sub-header">Identification and Verification.</h2>
+          </div>
+        </section>
+
+        <CustomFormField 
+        fieldType={FormFieldType.SELECT}
+        control={form.control}
+        name="identificationType"
+        label="Identification Type"
+        placeholder="Select an Identification Type"
+        
+        >
+          {IdentificationTypes.map((type) => (
+            <SelectItem key={type} value={type}>
+              {type}
+            </SelectItem>
+          ))}
+        </CustomFormField>
+
+        <CustomFormField 
+        fieldType={FormFieldType.INPUT}
+        control={form.control}
+        name="identificationNumber"
+        label="Identification Number"
+        placeholder="123456789"
+        />
+
+      <CustomFormField
+              fieldType={FormFieldType.SKELETON}
+              control={form.control}
+              name="identificationDocument"
+              label="Scanned copy of Identification Document"
+              renderSkeleton={(field) => (
+                <FormControl>
+                 <FileUploader 
+                 
+                 />
+                </FormControl>
+              )}
+            />
+
       <SubmitButton isLoading={isLoading}>Get Started</SubmitButton>
     </form>
   </Form>

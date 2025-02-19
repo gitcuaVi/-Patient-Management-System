@@ -7,18 +7,21 @@ import { Form, FormControl } from "@/components/ui/form"
 import  CustomFormField  from "@/components/CustomFormField"
 import SubmitButton from "@/components/SubmitButton"
 import { useState } from "react"
-import { UserFormValidation } from "@/lib/validation"
+import { PatientFormValidation, UserFormValidation } from "@/lib/validation"
 import { create } from "domain"
 import { useRouter } from "next/navigation"
-import { createUser } from "@/lib/actions/patient.action"
+import { createUser, registerPatient } from "@/lib/actions/patient.action"
 import { FormFieldType } from "./PatientForm"
 
-import { Doctors, GenderOptions, IdentificationTypes } from "@/constants"
+import { Doctors, GenderOptions, IdentificationTypes, PatientFormDefaultValues } from "@/constants"
 import { Label } from "../ui/label"
 import Image from "next/image";
 import { SelectItem } from "../ui/select"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
-import FileUploader from "../FileUploader"
+import  FileUploader  from "../FileUploader"
+import { blob } from "stream/consumers"
+
+
 
 
 
@@ -27,9 +30,10 @@ export const RegisterForm = ({user}:{user:User})=> {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false)
 
-  const form = useForm<z.infer<typeof UserFormValidation>>({
-    resolver: zodResolver(UserFormValidation),
+  const form = useForm<z.infer<typeof PatientFormValidation>>({
+    resolver: zodResolver(PatientFormValidation),
     defaultValues: {
+      ...PatientFormDefaultValues,
       name: "",
       email: "",
       phone: "",
@@ -37,20 +41,28 @@ export const RegisterForm = ({user}:{user:User})=> {
   })
  
   // 2. Define a submit handler.
-  async function onSubmit({name, email, phone}: z.infer<typeof UserFormValidation>) {
+  async function onSubmit(values: z.infer<typeof PatientFormValidation>) {
     setIsLoading(true)
     
+    let formData;
+
+    if(values.identificationDocument && values.identificationDocument.length > 0) {
+      const blobFile = new Blob([values.identificationDocument[0]],{
+        type: values.identificationDocument[0].type,
+      })
+      formData = new FormData();
+      formData.append('BlobFile',blobFile);
+      formData.append("fileName", values.identificationDocument[0].name);
+    }
     try {
-      const userData = {
-        name,
-        email,
-        phone,
+      const patientData = {
+        ...values,
+        userId: user.$id,
+        birthDate: new Date(values.birthDate),
+        identificationDocument: formData,
       }
-
-      const user = await createUser(userData);
-
-
-      if(user) router.push(`/patients/${user.$id}/register`)
+      const patient = await registerPatient(patientData);
+      if(patient) router.push(`/patients/${user.$id}/new-appointment`)
     } catch (error) {
       console.log(error);
     }
@@ -256,12 +268,35 @@ export const RegisterForm = ({user}:{user:User})=> {
               label="Scanned copy of Identification Document"
               renderSkeleton={(field) => (
                 <FormControl>
-                 <FileUploader 
-                 
+                 <FileUploader files={field.value} onChange={field.onChange}
                  />
                 </FormControl>
               )}
             />
+
+        <section className="space-y-6">
+          <div className="mb-9 space-y-1">
+          <h2 className="sub-header">Consent and privacy.</h2>
+          </div>
+        </section>
+        <CustomFormField 
+        fieldType={FormFieldType.CHECKBOX}
+        control={form.control}
+        name = "treatmentConsent"
+        label="I consent to treatment"
+        />
+        <CustomFormField 
+        fieldType={FormFieldType.CHECKBOX}
+        control={form.control}
+        name = "disclosureConsent"
+        label="I consent to disclosure of information"
+        />
+        <CustomFormField 
+        fieldType={FormFieldType.CHECKBOX}
+        control={form.control}
+        name = "privacyConsent"
+        label="I consent to privacy policy"
+        />
 
       <SubmitButton isLoading={isLoading}>Get Started</SubmitButton>
     </form>
@@ -270,3 +305,5 @@ export const RegisterForm = ({user}:{user:User})=> {
 }
 
 export default RegisterForm
+
+  
